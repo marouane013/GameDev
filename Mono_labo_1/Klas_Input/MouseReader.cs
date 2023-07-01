@@ -19,3 +19,5 @@ namespace Mono_labo_1.Klas_Input
         }
     }
 }
+
+

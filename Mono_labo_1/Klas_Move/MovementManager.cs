@@ -25,9 +25,7 @@ namespace Mono_labo_1.Klas_Move
             var toekomstigePositie = movable.Position + afstand;
 
             movable.Position = toekomstigePositie;
-            movable.Position += afstand;
 
-            //var toekomstigePositie = 
         }
     }
 }

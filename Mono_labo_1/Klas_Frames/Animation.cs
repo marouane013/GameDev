@@ -1,49 +1,41 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mono_labo_1.Klas_Frames
 {
     internal class Animation
     {
-        //CONSTRUCTOR
-        public Animation()
-        {
-            frames = new List<AnimationFrame>();
-        }
-
-
-
-        //FIELDS
-        public AnimationFrame CurrentFrame { get; set; }
+        // FIELDS
         private List<AnimationFrame> frames;
         private int counter;
         private double secondCounter = 0;
 
+        // PROPERTIES
+        public AnimationFrame CurrentFrame { get; private set; }
 
-
-
-        //METHODS
-        public void AddFrame(AnimationFrame frame)
+        // CONSTRUCTOR
+        public Animation()
         {
-            frames.Add(frame);
-            CurrentFrame = frames[0];
+            frames = new List<AnimationFrame>();
+            counter = 0;
         }
 
+        // METHODS
         public void Update(GameTime gameTime)
         {
+            if (frames.Count == 0)
+                return;
+
             CurrentFrame = frames[counter];
 
             secondCounter += gameTime.ElapsedGameTime.TotalSeconds;
             int fps = 15;
 
-            if (secondCounter >= 1d/fps)
+            if (secondCounter >= 1d / fps)
             {
                 counter++;
-                secondCounter = 0;  
+                secondCounter = 0;
             }
 
             if (counter >= frames.Count)
@@ -52,27 +44,62 @@ namespace Mono_labo_1.Klas_Frames
             }
         }
 
+        public void SetAnimationFrames(List<Rectangle> frameRectangles)
+        {
+            frames.Clear(); // Clear all frames
+            foreach (var rectangle in frameRectangles)
+            {
+                frames.Add(new AnimationFrame(rectangle));
+            }
+            CurrentFrame = frames.Count > 0 ? frames[0] : null; // Set the current frame to the first frame
+        }
+
         public void GetAnimationFromTextureRow(int row, int rowSize)
         {
+            frames.Clear();
+
             for (int i = 0; i < rowSize; i++)
             {
-                frames.Add(new AnimationFrame(new Rectangle(64 * i, 64 * (row-1), 64, 64)));
+                frames.Add(new AnimationFrame(new Rectangle(64 * i, 64 * (row - 1), 64, 64)));
             }
+
+            CurrentFrame = frames.Count > 0 ? frames[0] : null; // Set the current frame to the first frame
         }
+
         public void GetFramesFromTextureProperties(int width, int height, int numberOfWidthSprites, int numberOfHeightSprites)
         {
+            frames.Clear();
+
             int widthOfFrame = width / numberOfWidthSprites;
             int heightOfFrame = height / numberOfHeightSprites;
 
-            for (int y = 0; y <= height-heightOfFrame; y += heightOfFrame)
+            for (int y = 0; y <= height - heightOfFrame; y += heightOfFrame)
             {
-                for (int x = 0; x <= width-widthOfFrame; x+= widthOfFrame)
+                for (int x = 0; x <= width - widthOfFrame; x += widthOfFrame)
                 {
                     frames.Add(new AnimationFrame(new Rectangle(x, y, widthOfFrame, heightOfFrame)));
                 }
             }
+
+            CurrentFrame = frames.Count > 0 ? frames[0] : null; // Set the current frame to the first frame
         }
 
+        public void AddFrame(AnimationFrame frame)
+        {
+            frames.Add(frame);
+            CurrentFrame = frames.Count > 0 ? frames[0] : null; // Set the current frame to the first frame
+        }
 
+        public void SetIdleAnimation(int row, int rowSize)
+        {
+            List<Rectangle> idleFrames = new List<Rectangle>();
+
+            for (int i = 0; i < rowSize; i++)
+            {
+                idleFrames.Add(new Rectangle(64 * i, 64 * (row - 1), 64, 64));
+            }
+
+            SetAnimationFrames(idleFrames); // Set the frames for the idle animation
+        }
     }
 }

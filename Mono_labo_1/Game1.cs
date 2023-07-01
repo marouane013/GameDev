@@ -27,7 +27,7 @@ namespace Mono_labo_1
         {
 
             base.Initialize();
-            clops = new Clops(clopsTexture, new KeyboardReader());
+            clops = new Clops(clopsTexture, new KeyboardReader(), GraphicsDevice);
         }
 
         protected override void LoadContent()

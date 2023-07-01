@@ -1,82 +1,169 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Mono_labo_1.interfaces;
 using Mono_labo_1.Klas_Frames;
 using Mono_labo_1.Klas_Interfaces;
 using Mono_labo_1.Klas_Move;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mono_labo_1.Caracters
 {
-     class Clops : IGameObject, IMovable
+    class Clops : IGameObject, IMovable
     {
-       
-
-        //PROPERTIES
+        // PROPERTIES
         private Texture2D texture;
-        Animation animation;
+        private Dictionary<string, Animation> animations;
         private MovementManager movementManager;
+        private Animation currentAnimation;
+        private bool isMovingLeft;
+        private int frameWidth;  // Declareer frameWidth als een veld
+        private int frameHeight; // Declareer frameHeight als een veld
+        public Vector2 Position { get; set; }
+        public Vector2 Speed { get; set; }
+        public IInputReader InputReader { get; set; }
+        private GraphicsDevice graphicsDevice;
 
-        public Vector2 Position { get ; set ; }
-        public Vector2 Speed { get ; set ; }
-        public IInputReader InputReader { get ; set ; }
-
-
-
-
-
-
-
-        //CONSTRUCTOR
-        public Clops(Texture2D texture, IInputReader inputReader)
+        // CONSTRUCTOR
+        public Clops(Texture2D texture, IInputReader inputReader, GraphicsDevice graphicsDevice)
         {
             this.texture = texture;
             this.InputReader = inputReader;
-            animation = new Animation();
-            movementManager = new MovementManager();    
-            animation.GetAnimationFromTextureRow(2, 12);
+            animations = new Dictionary<string, Animation>();
+            movementManager = new MovementManager();
             Position = new Vector2(1, 1);
-            Speed = new Vector2(2,2);
+            Speed = new Vector2(2, 2);
+            this.graphicsDevice = graphicsDevice;
 
+            SetupAnimations();
+            SetCurrentAnimation("idleleft");
 
+            // Get the screen width and height from the GraphicsDevice
+            frameWidth = currentAnimation.CurrentFrame.SourceRectangle.Width;
+            frameHeight = currentAnimation.CurrentFrame.SourceRectangle.Height;
 
-            //animation.GetFramesFromTextureProperties(texture.Width, texture.Height, 15, 20);
         }
 
-      
+        private void SetCurrentAnimation(string animationName)
+        {
+            if (animations.ContainsKey(animationName))
+            {
+                currentAnimation = animations[animationName];
 
+                // Update frameWidth en frameHeight met de breedte en hoogte van het huidige frame
+                frameWidth = currentAnimation.CurrentFrame.SourceRectangle.Width;
+                frameHeight = currentAnimation.CurrentFrame.SourceRectangle.Height;
+            }
+            else
+            {
+                currentAnimation = animations.ContainsKey("idleleft") ? animations["idleleft"] : null;
 
+                if (currentAnimation == null)
+                {
+                    throw new ArgumentException("Animation with the specified name does not exist: " + animationName);
+                }
+            }
+        }
 
+        private void SetupAnimations()
+        {
+            // Voeg verschillende animaties toe aan de dictionary
+            Animation idleLeftAnimation = new Animation();
+            idleLeftAnimation.GetAnimationFromTextureRow(11, 15);
+            animations.Add("idleleft", idleLeftAnimation);
 
+            Animation idleRightAnimation = new Animation();
+            idleRightAnimation.GetAnimationFromTextureRow(1, 15);
+            animations.Add("idleright", idleRightAnimation);
 
+            Animation walkLeftAnimation = new Animation();
+            walkLeftAnimation.GetAnimationFromTextureRow(12, 12);
+            animations.Add("walkleft", walkLeftAnimation);
 
-        //METHODS
+            Animation walkRightAnimation = new Animation();
+            walkRightAnimation.GetAnimationFromTextureRow(2, 12);
+            animations.Add("walkright", walkRightAnimation);
+        }
+
+        // METHODS
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture,Position, animation.CurrentFrame.SourceRectangle, Color.White);
+            // Bepaal de gewenste schaalvergroting
+            float scale = 1.3f; // Pas deze waarde naar wens aan
+
+            // Bereken de positie waarop de tekenfiguur moet worden weergegeven (rekening houdend met de schaal)
+            Vector2 drawPosition = Position - (currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2() * scale - currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2()) / 2;
+
+            // Tekenen met de opgegeven schaal en positie
+            spriteBatch.Draw(texture, drawPosition, currentAnimation.CurrentFrame.SourceRectangle, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
         public void Update(GameTime gameTime)
         {
-            
+            int screenWidth = graphicsDevice.Viewport.Width;
+            int screenHeight = graphicsDevice.Viewport.Height;
+
             Move();
 
-            animation.Update(gameTime);
-            
+            CheckCollisionWithConsoleBounds();
+
+            currentAnimation.Update(gameTime);
         }
 
         private void Move()
         {
-            movementManager.Move(this); 
-            
-
+            //CheckCollisionWithConsoleBounds();
+            Vector2 movement = InputReader.ReadInput();
+            if (movement.X < 0) // Voer bewegingslogica uit voor naar links lopen
+            {
+                isMovingLeft = true;
+                SetCurrentAnimation("walkleft");
+            }
+            else if (movement.X > 0) // Voer bewegingslogica uit voor naar rechts lopen
+            {
+                isMovingLeft = false;
+                SetCurrentAnimation("walkright");
+            }
+            else if (isMovingLeft) // Voer bewegingslogica uit voor naar links idle
+            {
+                SetCurrentAnimation("idleleft");
+            }
+            else
+            {
+                SetCurrentAnimation("idleright");
+            }
+            movementManager.Move(this);
         }
 
+        private void CheckCollisionWithConsoleBounds()
+        {
+            int consoleWidth = graphicsDevice.Viewport.Width;
+            int consoleHeight = graphicsDevice.Viewport.Height;
 
+            // Maak een kopie van de huidige positie
+            Vector2 currentPosition = Position;
+
+            // Controleer of de kopie van de positie buiten de grenzen van de console valt
+            if (currentPosition.X < 0)
+            {
+                currentPosition.X = 0;
+            }
+            else if (currentPosition.X + frameWidth > consoleWidth)
+            {
+                currentPosition.X = consoleWidth - frameWidth;
+            }
+
+            if (currentPosition.Y < 0)
+            {
+                currentPosition.Y = 0;
+            }
+            else if (currentPosition.Y + frameHeight > consoleHeight)
+            {
+                currentPosition.Y = consoleHeight - frameHeight;
+            }
+
+            // Wijs de bijgewerkte positie terug naar de eigenschap
+            Position = currentPosition;
+        }
     }
 }
