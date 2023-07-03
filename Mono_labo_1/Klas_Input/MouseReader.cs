@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using Mono_labo_1.Klas_Interfaces;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,10 @@ namespace Mono_labo_1.Klas_Input
     {
         public bool IsDestinationInput => true;
 
+        public bool IsKeyPressed(Keys key)
+        {
+            throw new NotImplementedException();
+        }
 
         public Vector2 ReadInput()
         {

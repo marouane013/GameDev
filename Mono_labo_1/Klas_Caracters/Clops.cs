@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Mono_labo_1.interfaces;
 using Mono_labo_1.Klas_Frames;
 using Mono_labo_1.Klas_Interfaces;
@@ -17,8 +18,13 @@ namespace Mono_labo_1.Caracters
         private MovementManager movementManager;
         private Animation currentAnimation;
         private bool isMovingLeft;
-        private int frameWidth;  // Declareer frameWidth als een veld
-        private int frameHeight; // Declareer frameHeight als een veld
+        private int frameWidth;
+        private int frameHeight;
+        private float gravity = 0.5f;
+        private float verticalVelocity = 0f;
+        private bool isJumping;
+        private float jumpForce = 10f;
+
         public Vector2 Position { get; set; }
         public Vector2 Speed { get; set; }
         public IInputReader InputReader { get; set; }
@@ -38,10 +44,8 @@ namespace Mono_labo_1.Caracters
             SetupAnimations();
             SetCurrentAnimation("idleleft");
 
-            // Get the screen width and height from the GraphicsDevice
             frameWidth = currentAnimation.CurrentFrame.SourceRectangle.Width;
             frameHeight = currentAnimation.CurrentFrame.SourceRectangle.Height;
-
         }
 
         private void SetCurrentAnimation(string animationName)
@@ -49,8 +53,6 @@ namespace Mono_labo_1.Caracters
             if (animations.ContainsKey(animationName))
             {
                 currentAnimation = animations[animationName];
-
-                // Update frameWidth en frameHeight met de breedte en hoogte van het huidige frame
                 frameWidth = currentAnimation.CurrentFrame.SourceRectangle.Width;
                 frameHeight = currentAnimation.CurrentFrame.SourceRectangle.Height;
             }
@@ -67,9 +69,8 @@ namespace Mono_labo_1.Caracters
 
         private void SetupAnimations()
         {
-            // Voeg verschillende animaties toe aan de dictionary
             Animation idleLeftAnimation = new Animation();
-            idleLeftAnimation.GetAnimationFromTextureRow(11, 15, 64,64, 0);
+            idleLeftAnimation.GetAnimationFromTextureRow(11, 15, 64, 64, 0);
             animations.Add("idleleft", idleLeftAnimation);
 
             Animation idleRightAnimation = new Animation();
@@ -83,50 +84,90 @@ namespace Mono_labo_1.Caracters
             Animation walkRightAnimation = new Animation();
             walkRightAnimation.GetAnimationFromTextureRow(2, 12, 64, 64, 2);
             animations.Add("walkright", walkRightAnimation);
+
+            Animation jumpLeftAnimation = new Animation();
+            jumpLeftAnimation.GetAnimationFromTextureRow(13, 7, 64, 64, 2);
+            animations.Add("jumpleft", jumpLeftAnimation);
+
+            Animation jumpRightAnimation = new Animation();
+            jumpRightAnimation.GetAnimationFromTextureRow(3, 7, 64, 64, 2);
+            animations.Add("jumpright", jumpRightAnimation);
         }
 
-        // METHODS
         public void Draw(SpriteBatch spriteBatch)
         {
-            // Bepaal de gewenste schaalvergroting
-            float scale = 1.3f; // Pas deze waarde naar wens aan
-
-            // Bereken de positie waarop de tekenfiguur moet worden weergegeven (rekening houdend met de schaal)
-            Vector2 drawPosition = Position - (currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2() * scale - currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2()) / 2;
-
-       
-
-            // Tekenen met de opgegeven schaal en positie
+            float scale = 1.3f;
+            Vector2 drawPosition = Position - (currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2() * scale - currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2()) / 2f;
             spriteBatch.Draw(texture, drawPosition, currentAnimation.CurrentFrame.SourceRectangle, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
         public void Update(GameTime gameTime)
         {
-            int screenWidth = graphicsDevice.Viewport.Width;
-            int screenHeight = graphicsDevice.Viewport.Height;
-
             Move();
-
+            ApplyGravity();
+            if (InputReader.IsKeyPressed(Keys.Up) && !isJumping)
+            {
+                Jump();
+            }
             CheckCollisionWithConsoleBounds();
-
             currentAnimation.Update(gameTime);
+        }
+
+
+        private void Jump()
+        {
+            // Start de sprong alleen als het personage op de grond staat
+            if (Position.Y + frameHeight >= graphicsDevice.Viewport.Height)
+            {
+                // Pas de verticale snelheid toe om het personage omhoog te laten springen
+                verticalVelocity = -jumpForce;
+                isJumping = true;
+
+                if (isMovingLeft)
+                {
+                    SetCurrentAnimation("jumpleft");
+                }
+                else
+                {
+                    SetCurrentAnimation("jumpright");
+                }
+            }
+        }
+
+        private void ApplyGravity()
+        {
+            // Voeg zwaartekracht toe aan de verticale snelheid
+            verticalVelocity += gravity;
+
+            // Pas de verticale positie aan op basis van de verticale snelheid
+            Position += new Vector2(0, verticalVelocity);
+
+            // Controleer of het personage de vloer raakt
+            if (Position.Y + frameHeight >= graphicsDevice.Viewport.Height)
+            {
+                // Zet de verticale snelheid op nul en plaats het personage op de vloerpositie
+                verticalVelocity = 0f;
+                Position = new Vector2(Position.X, graphicsDevice.Viewport.Height - frameHeight);
+                isJumping = false;
+            }
+
         }
 
         private void Move()
         {
-            //CheckCollisionWithConsoleBounds();
             Vector2 movement = InputReader.ReadInput();
-            if (movement.X < 0) // Voer bewegingslogica uit voor naar links lopen
+
+            if (movement.X < 0)
             {
                 isMovingLeft = true;
                 SetCurrentAnimation("walkleft");
             }
-            else if (movement.X > 0) // Voer bewegingslogica uit voor naar rechts lopen
+            else if (movement.X > 0)
             {
                 isMovingLeft = false;
                 SetCurrentAnimation("walkright");
             }
-            else if (isMovingLeft) // Voer bewegingslogica uit voor naar links idle
+            else if (isMovingLeft)
             {
                 SetCurrentAnimation("idleleft");
             }
@@ -134,6 +175,7 @@ namespace Mono_labo_1.Caracters
             {
                 SetCurrentAnimation("idleright");
             }
+
             movementManager.Move(this);
         }
 
@@ -141,15 +183,11 @@ namespace Mono_labo_1.Caracters
         {
             int consoleWidth = graphicsDevice.Viewport.Width;
             int consoleHeight = graphicsDevice.Viewport.Height;
+            int adjustedFrameWidth = frameWidth;
+            int adjustedFrameHeight = frameHeight;
 
-            // Aftrekken van het vaste bedrag van de breedte en hoogte
-            int adjustedFrameWidth = frameWidth; // + 10;  // Vervang 10 door de gewenste waarde om eraf te halen
-            int adjustedFrameHeight = frameHeight; // + 10;  // Vervang 10 door de gewenste waarde om eraf te halen
-
-            // Maak een kopie van de huidige positie
             Vector2 currentPosition = Position;
 
-            // Controleer of de kopie van de positie buiten de grenzen van de console valt
             if (currentPosition.X < -15)
             {
                 currentPosition.X = -15;
@@ -165,15 +203,10 @@ namespace Mono_labo_1.Caracters
             }
             else if (currentPosition.Y + adjustedFrameHeight > consoleHeight - 10)
             {
-                currentPosition.Y = consoleHeight - adjustedFrameHeight -10;
+                currentPosition.Y = consoleHeight - adjustedFrameHeight - 10;
             }
 
-            // Wijs de bijgewerkte positie terug naar de eigenschap
             Position = currentPosition;
         }
-
-
-
-
     }
 }

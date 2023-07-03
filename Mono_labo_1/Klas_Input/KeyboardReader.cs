@@ -37,5 +37,10 @@ namespace Mono_labo_1.Klas_Keyboard
             
             return direction;   
         }
+        public bool IsKeyPressed(Keys key)
+        {
+            KeyboardState state = Keyboard.GetState();
+            return state.IsKeyDown(key);
+        }
     }
 }
