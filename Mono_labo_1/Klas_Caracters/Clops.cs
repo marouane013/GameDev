@@ -69,19 +69,19 @@ namespace Mono_labo_1.Caracters
         {
             // Voeg verschillende animaties toe aan de dictionary
             Animation idleLeftAnimation = new Animation();
-            idleLeftAnimation.GetAnimationFromTextureRow(11, 15);
+            idleLeftAnimation.GetAnimationFromTextureRow(11, 15, 64,64, 0);
             animations.Add("idleleft", idleLeftAnimation);
 
             Animation idleRightAnimation = new Animation();
-            idleRightAnimation.GetAnimationFromTextureRow(1, 15);
+            idleRightAnimation.GetAnimationFromTextureRow(1, 15, 64, 64, 0);
             animations.Add("idleright", idleRightAnimation);
 
             Animation walkLeftAnimation = new Animation();
-            walkLeftAnimation.GetAnimationFromTextureRow(12, 12);
+            walkLeftAnimation.GetAnimationFromTextureRow(12, 12, 64, 64, 2);
             animations.Add("walkleft", walkLeftAnimation);
 
             Animation walkRightAnimation = new Animation();
-            walkRightAnimation.GetAnimationFromTextureRow(2, 12);
+            walkRightAnimation.GetAnimationFromTextureRow(2, 12, 64, 64, 2);
             animations.Add("walkright", walkRightAnimation);
         }
 
@@ -93,6 +93,8 @@ namespace Mono_labo_1.Caracters
 
             // Bereken de positie waarop de tekenfiguur moet worden weergegeven (rekening houdend met de schaal)
             Vector2 drawPosition = Position - (currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2() * scale - currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2()) / 2;
+
+       
 
             // Tekenen met de opgegeven schaal en positie
             spriteBatch.Draw(texture, drawPosition, currentAnimation.CurrentFrame.SourceRectangle, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0);
@@ -140,30 +142,38 @@ namespace Mono_labo_1.Caracters
             int consoleWidth = graphicsDevice.Viewport.Width;
             int consoleHeight = graphicsDevice.Viewport.Height;
 
+            // Aftrekken van het vaste bedrag van de breedte en hoogte
+            int adjustedFrameWidth = frameWidth; // + 10;  // Vervang 10 door de gewenste waarde om eraf te halen
+            int adjustedFrameHeight = frameHeight; // + 10;  // Vervang 10 door de gewenste waarde om eraf te halen
+
             // Maak een kopie van de huidige positie
             Vector2 currentPosition = Position;
 
             // Controleer of de kopie van de positie buiten de grenzen van de console valt
-            if (currentPosition.X < 0)
+            if (currentPosition.X < -15)
             {
-                currentPosition.X = 0;
+                currentPosition.X = -15;
             }
-            else if (currentPosition.X + frameWidth > consoleWidth)
+            else if (currentPosition.X + adjustedFrameWidth > consoleWidth + 15)
             {
-                currentPosition.X = consoleWidth - frameWidth;
+                currentPosition.X = consoleWidth - adjustedFrameWidth + 15;
             }
 
-            if (currentPosition.Y < 0)
+            if (currentPosition.Y < -15)
             {
-                currentPosition.Y = 0;
+                currentPosition.Y = -15;
             }
-            else if (currentPosition.Y + frameHeight > consoleHeight)
+            else if (currentPosition.Y + adjustedFrameHeight > consoleHeight - 10)
             {
-                currentPosition.Y = consoleHeight - frameHeight;
+                currentPosition.Y = consoleHeight - adjustedFrameHeight -10;
             }
 
             // Wijs de bijgewerkte positie terug naar de eigenschap
             Position = currentPosition;
         }
+
+
+
+
     }
 }

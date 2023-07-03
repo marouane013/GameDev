@@ -54,17 +54,19 @@ namespace Mono_labo_1.Klas_Frames
             CurrentFrame = frames.Count > 0 ? frames[0] : null; // Set the current frame to the first frame
         }
 
-        public void GetAnimationFromTextureRow(int row, int rowSize)
+        public void GetAnimationFromTextureRow(int row, int rowSize, int frameWidth, int frameHeight, int yOffset)
         {
             frames.Clear();
 
             for (int i = 0; i < rowSize; i++)
             {
-                frames.Add(new AnimationFrame(new Rectangle(64 * i, 64 * (row - 1), 64, 64)));
+                Rectangle frameRectangle = new Rectangle(frameWidth * i, frameHeight * (row - 1) + yOffset, frameWidth, frameHeight - yOffset);
+                frames.Add(new AnimationFrame(frameRectangle));
             }
 
             CurrentFrame = frames.Count > 0 ? frames[0] : null; // Set the current frame to the first frame
         }
+
 
         public void GetFramesFromTextureProperties(int width, int height, int numberOfWidthSprites, int numberOfHeightSprites)
         {
