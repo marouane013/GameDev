@@ -2,27 +2,32 @@
 using Microsoft.Xna.Framework.Input;
 using Mono_labo_1.Klas_Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mono_labo_1.Klas_Input
 {
     internal class MouseReader : IInputReader
     {
+        private MouseState previousMouseState;
+        private MouseState currentMouseState;
+
         public bool IsDestinationInput => true;
 
         public bool IsKeyPressed(Keys key)
         {
-            throw new NotImplementedException();
+            return false; // Muis leest geen toetsenbordinvoer
         }
 
         public Vector2 ReadInput()
         {
-            throw new NotImplementedException();
+            previousMouseState = currentMouseState;
+            currentMouseState = Mouse.GetState();
+
+            return new Vector2(currentMouseState.X, currentMouseState.Y);
+        }
+
+        public bool IsMouseClicked()
+        {
+            return currentMouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released;
         }
     }
 }
-
-

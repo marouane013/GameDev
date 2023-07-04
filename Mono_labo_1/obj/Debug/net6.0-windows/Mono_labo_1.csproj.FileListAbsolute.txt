@@ -35,8 +35,7 @@ C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\obj\Debug\net6.0-windows\ref
 C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\obj\Debug\net6.0-windows\Mono_labo_1.pdb
 C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\obj\Debug\net6.0-windows\Mono_labo_1.genruntimeconfig.cache
 C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\obj\Debug\net6.0-windows\ref\Mono_labo_1.dll
-C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\bin\Debug\net6.0-windows\Content\AMONG_US_SPRITE.xnb
-C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\bin\Debug\net6.0-windows\Content\AMONG_US_SPRITE_SMALL.xnb
 C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\bin\Debug\net6.0-windows\Content\Cyclops Sprite Sheet.xnb
 C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\bin\Debug\net6.0-windows\Content\block.xnb
 C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\bin\Debug\net6.0-windows\Content\boxxie.xnb
+C:\Users\mairo\source\repos\Mono_labo_1\Mono_labo_1\bin\Debug\net6.0-windows\Content\Lovepik_com-401228855-start-button.xnb

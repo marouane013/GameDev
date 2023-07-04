@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Mono_labo_1.Klas_Interfaces
 {
-    internal interface IInputReader
+    public interface IInputReader
     {
         Vector2 ReadInput();
         bool IsKeyPressed(Keys key);

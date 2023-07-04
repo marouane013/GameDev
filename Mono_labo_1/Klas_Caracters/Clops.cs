@@ -38,7 +38,7 @@ namespace Mono_labo_1.Caracters
             animations = new Dictionary<string, Animation>();
             movementManager = new MovementManager();
             Position = new Vector2(1, 1);
-            Speed = new Vector2(2, 2);
+            Speed = new Vector2(3, 3);
             this.graphicsDevice = graphicsDevice;
 
             SetupAnimations();
@@ -96,7 +96,7 @@ namespace Mono_labo_1.Caracters
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            float scale = 1.3f;
+            float scale = 2f;
             Vector2 drawPosition = Position - (currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2() * scale - currentAnimation.CurrentFrame.SourceRectangle.Size.ToVector2()) / 2f;
             spriteBatch.Draw(texture, drawPosition, currentAnimation.CurrentFrame.SourceRectangle, Color.White, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
@@ -188,22 +188,22 @@ namespace Mono_labo_1.Caracters
 
             Vector2 currentPosition = Position;
 
-            if (currentPosition.X < -15)
+            if (currentPosition.X < -10)
             {
-                currentPosition.X = -15;
+                currentPosition.X = -10;
             }
-            else if (currentPosition.X + adjustedFrameWidth > consoleWidth + 15)
+            else if (currentPosition.X + adjustedFrameWidth > consoleWidth + 10)
             {
-                currentPosition.X = consoleWidth - adjustedFrameWidth + 15;
+                currentPosition.X = consoleWidth - adjustedFrameWidth + 10;
             }
 
-            if (currentPosition.Y < -15)
+            if (currentPosition.Y < -25)
             {
-                currentPosition.Y = -15;
+                currentPosition.Y = -25;
             }
-            else if (currentPosition.Y + adjustedFrameHeight > consoleHeight - 10)
+            else if (currentPosition.Y + adjustedFrameHeight > consoleHeight - 30)
             {
-                currentPosition.Y = consoleHeight - adjustedFrameHeight - 10;
+                currentPosition.Y = consoleHeight - adjustedFrameHeight - 30;
             }
 
             Position = currentPosition;
