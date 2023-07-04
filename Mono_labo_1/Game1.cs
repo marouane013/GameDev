@@ -25,6 +25,9 @@ namespace Mono_labo_1
 
         protected override void Initialize()
         {
+            _graphics.PreferredBackBufferWidth = 1900; // Pas de gewenste breedte aan
+            _graphics.PreferredBackBufferHeight = 920; // Pas de gewenste hoogte aan
+            _graphics.ApplyChanges();
 
             base.Initialize();
             clops = new Clops(clopsTexture, new KeyboardReader(), GraphicsDevice);
